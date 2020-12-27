@@ -1,0 +1,101 @@
+version: '3.6'
+
+services:
+
+  postgres:
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    env_file: .env.production
+    shm_size: 256mb
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+
+  web:
+    image: mastodon_custom
+    build:
+      context: ./src/mastodon
+      args:
+        - MASTODON_VERSION=v3.3.0
+    restart: always
+    env_file: .env.production
+    command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"
+    ports:
+      - 127.0.0.1:3000:3000
+    volumes:
+      - ./data/emojis:/emojis
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:3000/health || exit 1"]
+
+  streaming:
+    image: mastodon_custom
+    restart: always
+    env_file: .env.production
+    command: node ./streaming
+    ports:
+      - 127.0.0.1:4000:4000
+    depends_on:
+      - postgres
+      - redis
+      - web # To wait for "web" to be built
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy=off localhost:4000/api/v1/streaming/health || exit 1"]
+
+  sidekiq:
+    image: mastodon_custom
+    restart: always
+    env_file: .env.production
+    command: bundle exec sidekiq
+    depends_on:
+      - postgres
+      - redis
+      - web # To wait for "web" to be built
+
+  proxy:
+    build:
+      context: ./src/proxy
+      args:
+        - NGINX_VERSION=1.19-alpine
+    restart: always
+    ports:
+      - 127.0.0.1:8004:8080 # Mastodon
+      - 127.0.0.1:8003:8081 # CDN
+    volumes:
+      - ./data/proxy:/cache
+    depends_on:
+      - web
+      - streaming
+      - sidekiq
+
+  redis:
+    image: redis:6.0-alpine
+    restart: always
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      
+## Some useful commands
+## First setup
+# docker-compose run --rm -e SAFETY_ASSURED=1 web bundle exec rake db:setup
+##
+# docker-compose run --rm web tootctl accounts modify Miaourt --role admin
+##
+## Backup Database
+# docker-compose exec postgres pg_dump -Fc -U mastodon mastodon | zstd > backup.dump.zst
+##
+## Migrate Database
+# docker-compose run --rm -e DB_PORT=5432 web rails db:migrate
+##
+## Grab all users emails for mailing list
+# docker-compose run web rails r "puts *User.confirmed.pluck(:email)"
+##
+## Emojis
+# tootctl emoji import /emojis/Meowmoji.tar.gz --category Meowmojis
+##
