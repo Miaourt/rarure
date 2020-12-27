@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>RaRu.Re | Error</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #2B2B2B;
+      color: #E0D7BE;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .dialog img {
+      display: block;
+      margin: 20px auto;
+      margin-top: 50px;
+      max-width: 600px;
+      width: 100%;
+      height: auto;
+    }
+
+    .dialog h1 {
+      font: 20px/28px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-weight: 400;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="dialog">
+    <img src="/rarurelogo_broken.png" alt="Error" />
+
+    <div>
+      <h1>Oops, something went wrong with RaRuRe.</h1>
+	  <h3>But don't worry too much, it's probably a maintenance operation that takes a bit longer than expected.<br/>
+	  Come back a bit later ! (Or leave this page open, it will reload by itself every 30 seconds)</h3>
+    </div>
+  </div>
+</body>
+
+<!-- Autoreloading -->
+<script>
+	setTimeout(location.reload.bind(location), 30000);
+</script>
+
+</html>
