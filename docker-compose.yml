@@ -19,7 +19,7 @@ services:
     build:
       context: ./src/mastodon
       args:
-        - MASTODON_VERSION=v3.3.0
+        - MASTODON_VERSION=v3.4.0
     restart: always
     env_file: .env.production
     command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"
@@ -61,7 +61,7 @@ services:
     build:
       context: ./src/proxy
       args:
-        - NGINX_VERSION=1.19-alpine
+        - NGINX_VERSION=1.20-alpine
     restart: always
     ports:
       - 127.0.0.1:8004:8080 # Mastodon
@@ -74,7 +74,7 @@ services:
       - sidekiq
 
   redis:
-    image: redis:6.0-alpine
+    image: redis:6.2-alpine
     restart: always
     volumes:
       - ./data/redis:/data
