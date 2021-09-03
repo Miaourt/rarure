@@ -19,7 +19,7 @@ services:
     build:
       context: ./src/mastodon
       args:
-        - MASTODON_VERSION=v3.4.0
+        - MASTODON_VERSION=v3.4.1
     restart: always
     env_file: .env.production
     command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"
@@ -61,7 +61,7 @@ services:
     build:
       context: ./src/proxy
       args:
-        - NGINX_VERSION=1.20-alpine
+        - NGINX_VERSION=1.21-alpine
     restart: always
     ports:
       - 127.0.0.1:8004:8080 # Mastodon
@@ -98,4 +98,7 @@ services:
 ##
 ## Emojis
 # tootctl emoji import /emojis/Meowmoji.tar.gz --category Meowmojis
+##
+## Prune cached media
+# docker-compose exec -e RAILS_ENV=production web tootctl media remove --verbose
 ##
