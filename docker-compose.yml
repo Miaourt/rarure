@@ -3,7 +3,7 @@ version: '3.6'
 services:
 
   postgres:
-    image: postgres:12-alpine
+    image: postgres:14-alpine
     restart: always
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
@@ -19,7 +19,8 @@ services:
     build:
       context: ./src/mastodon
       args:
-        - MASTODON_VERSION=v3.4.1
+        - MASTODON_VERSION=v3.4.6
+#        - MASTODON_VERSION=edge@sha256:0f534bb5a3d9e0b0584fdbb5441dac7435905e9bf9761dae4ce6e2ac0d5366ef
     restart: always
     env_file: .env.production
     command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"
@@ -84,21 +85,23 @@ services:
 ## Some useful commands
 ## First setup
 # docker-compose run --rm -e SAFETY_ASSURED=1 web bundle exec rake db:setup
-##
+#
 # docker-compose run --rm web tootctl accounts modify Miaourt --role admin
-##
+#
 ## Backup Database
 # docker-compose exec postgres pg_dump -Fc -U mastodon mastodon | zstd > backup.dump.zst
-##
+#
+## Restore Database
+# pg_restore -U mastodon -d mastodon -j 2 /dump/dump.sql
+#
 ## Migrate Database
 # docker-compose run --rm -e DB_PORT=5432 web rails db:migrate
-##
+#
 ## Grab all users emails for mailing list
 # docker-compose run web rails r "puts *User.confirmed.pluck(:email)"
-##
+#
 ## Emojis
 # tootctl emoji import /emojis/Meowmoji.tar.gz --category Meowmojis
-##
+#
 ## Prune cached media
 # docker-compose exec -e RAILS_ENV=production web tootctl media remove --verbose
-##

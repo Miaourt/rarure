@@ -29,7 +29,7 @@ RUN cd ~ \
 	&& sed -i -e 's/500/1312/g' \
 	   /opt/mastodon/app/javascript/mastodon/features/compose/components/compose_form.js \
 	   /opt/mastodon/app/validators/status_length_validator.rb \
-	&& sed -i -e '70i  def max_toot_chars\n    1312\n  end\n' \
+	&& sed -i -e '82i  def max_toot_chars\n    1312\n  end\n' \
 	   /opt/mastodon/app/serializers/rest/instance_serializer.rb \
 	&& sed -i -e 's/ns, :ap/ns, :max_toot_chars, :ap/g' \
 	   /opt/mastodon/app/serializers/rest/instance_serializer.rb \
