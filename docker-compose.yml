@@ -19,8 +19,8 @@ services:
     build:
       context: ./src/mastodon
       args:
-        - MASTODON_VERSION=v3.4.6
-#        - MASTODON_VERSION=edge@sha256:0f534bb5a3d9e0b0584fdbb5441dac7435905e9bf9761dae4ce6e2ac0d5366ef
+        - MASTODON_VERSION=v3.5.2
+#        - MASTODON_VERSION=edge@sha256:50aaa9d7037bd8de952563543f046ff03bd2e6fe6f458283c640b98ba56e7115
     restart: always
     env_file: .env.production
     command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"
@@ -52,7 +52,7 @@ services:
     image: mastodon_custom
     restart: always
     env_file: .env.production
-    command: bundle exec sidekiq
+    command: bundle exec sidekiq -c 20
     depends_on:
       - postgres
       - redis
@@ -75,7 +75,7 @@ services:
       - sidekiq
 
   redis:
-    image: redis:6.2-alpine
+    image: redis:6-alpine
     restart: always
     volumes:
       - ./data/redis:/data
