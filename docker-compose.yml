@@ -19,7 +19,7 @@ services:
     build:
       context: ./src/mastodon
       args:
-        - MASTODON_VERSION=v3.5.2
+        - MASTODON_VERSION=v3.5.3
 #        - MASTODON_VERSION=edge@sha256:50aaa9d7037bd8de952563543f046ff03bd2e6fe6f458283c640b98ba56e7115
     restart: always
     env_file: .env.production
