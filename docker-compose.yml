@@ -20,7 +20,6 @@ services:
       context: ./src/mastodon
       args:
         - MASTODON_VERSION=v3.5.3
-#        - MASTODON_VERSION=edge@sha256:50aaa9d7037bd8de952563543f046ff03bd2e6fe6f458283c640b98ba56e7115
     restart: always
     env_file: .env.production
     command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"
@@ -62,7 +61,7 @@ services:
     build:
       context: ./src/proxy
       args:
-        - NGINX_VERSION=1.21-alpine
+        - NGINX_VERSION=1.22-alpine
     restart: always
     ports:
       - 127.0.0.1:8004:8080 # Mastodon
@@ -105,3 +104,9 @@ services:
 #
 ## Prune cached media
 # docker-compose exec -e RAILS_ENV=production web tootctl media remove --verbose
+#
+## Prune cached thumbnails
+# docker-compose exec -e RAILS_ENV=production web tootctl preview_cards remove --days 15 --verbose
+#
+## Remove orphaned media
+# docker-compose exec -e RAILS_ENV=production web tootctl media remove-orphans --verbose
