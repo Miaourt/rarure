@@ -1,0 +1,79 @@
+/* Hey hacker, welcome here ! feel free to steal our tweaks if you want ! 
+   (Note that the color changes of the RaRuRe theme are more deep in our
+    tweaks and can't be found there) */
+
+/* Clean landing page a bit 
+.directory {
+	display: none;
+}
+
+.hero-widget {
+	display: none;
+}*/
+
+/* Place the logos well */
+.landing-page__mascot {
+    display: none;
+}
+
+.brand__tagline {
+    display: none;
+}
+
+.announcements__mastodon {
+    display: none;
+}
+
+.announcements__container {
+    width: 100%;
+}
+
+.public-layout .header .brand {
+    padding-top: 8px;
+    padding-right: 0px;
+}
+
+.public-layout .header .brand svg {
+    bottom: unset;
+    height: 30px;
+}
+
+/* Advanced UI */
+.drawer__inner__mastodon {
+    display: none;
+    /*
+	display: flex;
+	justify-content: center; */
+}
+
+/* .drawer__inner__mastodon > img {
+	margin-bottom: 5px;
+	align-self: end;
+} */
+
+/* Rounder corners */
+.tabs-bar__wrapper .tabs-bar {
+    border-radius: 4px;
+}
+
+.drawer__inner {
+    border-radius: 4px;
+}
+
+.search__input {
+    border-radius: 4px;
+}
+
+.drawer__header {
+    border-radius: 4px;
+}
+
+.column-header {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.column-back-button {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}

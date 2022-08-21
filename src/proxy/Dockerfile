@@ -1,9 +1,12 @@
-ARG NGINX_VERSION
+ARG NGINX_VERSION=1.23-alpine
 
-FROM nginx:${NGINX_VERSION}
+FROM nginxinc/nginx-unprivileged:${NGINX_VERSION}
 
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY env.conf /etc/nginx/env.conf
-COPY static /static/
+RUN rm -r /etc/nginx/conf.d
 
-RUN chmod -R 555 /static/
+COPY conf.d /etc/nginx/conf.d
+
+COPY html /usr/share/nginx/html
+
+ENTRYPOINT []
+CMD ["nginx", "-g", "daemon off;"] 
