@@ -5,12 +5,13 @@ services:
     build:
       context: ./src/mastodon
       args:
-        - MASTODON_VERSION=v3.5.3
+         - MASTODON_VERSION=v4.0.0rc2
+#        - MASTODON_VERSION=v3.5.3
 
   db:
     container_name: mastodon-db
     restart: unless-stopped
-    image: postgres:15beta3-alpine
+    image: postgres:15-alpine
     security_opt:
       - no-new-privileges:true
     environment:
