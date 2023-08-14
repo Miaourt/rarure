@@ -1,6 +1,7 @@
-ARG MASTODON_VERSION
+ARG MASTODON_VERSION=v4.1.6
 
-FROM tootsuite/mastodon:${MASTODON_VERSION}
+FROM ghcr.io/mastodon/mastodon:${MASTODON_VERSION}
+#FROM tootsuite/mastodon:${MASTODON_VERSION}
 
 ENV GITHUB_REPOSITORY=miaourt/rarure
 
@@ -10,6 +11,7 @@ COPY --chown=mastodon:mastodon icons/ /opt/mastodon/app/javascript/icons
 COPY --chown=mastodon:mastodon public/ /opt/mastodon/public
 
 COPY --chown=mastodon:mastodon components/ /opt/mastodon/app/javascript/mastodon/components
+COPY --chown=mastodon:mastodon helpers/ /opt/mastodon/app/helpers
 
 RUN cd ~ \
 	&& sed -i /opt/mastodon/config/themes.yml \
@@ -18,7 +20,7 @@ RUN cd ~ \
 	&& sed -i /opt/mastodon/app/javascript/styles/mailer.scss \
 		-e 's/mastodon\/variables/rarure\/variables/g' \
 
-	&& sed -i -e 's/500/1337/g' \
+	&& sed -i -e 's/500/21043/g' \
 		/opt/mastodon/app/javascript/mastodon/features/compose/components/compose_form.js \
 		/opt/mastodon/app/validators/status_length_validator.rb \
 
