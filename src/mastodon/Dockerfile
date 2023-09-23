@@ -1,7 +1,6 @@
-ARG MASTODON_VERSION=v4.1.6
+ARG MASTODON_VERSION=v4.1.9
 
 FROM ghcr.io/mastodon/mastodon:${MASTODON_VERSION}
-#FROM tootsuite/mastodon:${MASTODON_VERSION}
 
 ENV GITHUB_REPOSITORY=miaourt/rarure
 
