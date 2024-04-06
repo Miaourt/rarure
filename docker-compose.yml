@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   redis:
     container_name: mastodon-redis
@@ -9,8 +11,6 @@ services:
       - internal_network
     volumes:
       - ../persistent-data/mastodon/redis:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
 
   web:
     container_name: mastodon-web
@@ -24,8 +24,6 @@ services:
     networks:
       - external_network
       - internal_network
-    healthcheck:
-      test: ['CMD-SHELL', 'wget -q --spider --proxy=off localhost:3000/health || exit 1']
     ports:
       - '127.0.0.1:3000:3000'
     depends_on:
@@ -33,7 +31,6 @@ services:
       - redis
     volumes:
       - ../persistent-data/mastodon/emojis:/emojis
-      # - ./public/system:/mastodon/public/system
 
   streaming:
     container_name: mastodon-streaming
@@ -47,8 +44,6 @@ services:
     networks:
       - external_network
       - internal_network
-    healthcheck:
-      test: ['CMD-SHELL', 'wget -q --spider --proxy=off localhost:4000/api/v1/streaming/health || exit 1']
     ports:
       - '127.0.0.1:4000:4000'
     depends_on:
@@ -67,35 +62,51 @@ services:
     networks:
       - external_network
       - internal_network
-    healthcheck:
-      test: ['CMD-SHELL', "ps aux | grep '[s]idekiq\ 6' || false"]
     depends_on:
       # - db
       - redis
-    # volumes:
-    #   - ./public/system:/mastodon/public/system
 
   proxy:
     container_name: mastodon-nginx
     restart: unless-stopped
     build:
       context: ./src/proxy
-      # args:
-      #   - NGINX_VERSION=1.24-alpine
     security_opt:
       - no-new-privileges:true
     networks:
       - external_network
-    healthcheck:
-      test: ['CMD', 'curl', '--fail', 'http://127.0.0.1']
-    ports:
-      - 127.0.0.1:8004:8080
     depends_on:
       - web
       - streaming
       - sidekiq
     volumes:
       - ../persistent-data/mastodon/cache:/var/cache/nginx
+
+  caddy:
+    image: caddy:2.7.6-alpine
+    restart: unless-stopped
+    ports:
+      - target: "80"
+        host_ip: "0.0.0.0"
+        published: "80"
+        protocol: tcp
+        mode: host
+      - target: "443"
+        host_ip: "0.0.0.0"
+        published: "443"
+        protocol: tcp
+        mode: host
+      - target: "443"
+        host_ip: "0.0.0.0"
+        published: "443"
+        protocol: udp # gotta go quic
+        mode: host
+    networks:
+      - external_network
+    volumes:
+      - ../persistent-data/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ../persistent-data/caddy/data:/data
+      - ../persistent-data/caddy/config:/config
 
   # db:
   #   container_name: mastodon-db
@@ -135,7 +146,7 @@ networks:
 ## Migrate Database
 # docker compose run --rm web rails db:migrate
 #
-## Grab all users emails for mailing list
+## Grab all users emails if u need to send an important message
 # docker compose run web rails r "puts *User.confirmed.pluck(:email)"
 #
 ## Emojis
