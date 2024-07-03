@@ -1,4 +1,4 @@
-ARG MASTODON_VERSION=v4.2.8
+ARG MASTODON_VERSION=v4.2.9
 
 FROM ghcr.io/mastodon/mastodon:${MASTODON_VERSION}
 

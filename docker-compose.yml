@@ -1,6 +1,29 @@
-version: '3.8'
-
 services:
+  caddy:
+    container_name: mastodon-caddy
+    build:
+      context: ./src/caddy
+    restart: unless-stopped
+    ports:
+      - target: "80"
+        published: "80"
+        protocol: tcp
+        mode: host
+      - target: "443"
+        published: "443"
+        protocol: tcp
+        mode: host
+      - target: "443"
+        published: "443"
+        protocol: udp # gotta go quic
+        mode: host
+    networks:
+      - external_network
+      - internal_network
+    volumes:
+      - ../persistent-data/caddy/data:/data
+      - ../persistent-data/caddy/config:/config
+
   redis:
     container_name: mastodon-redis
     restart: unless-stopped
@@ -65,48 +88,6 @@ services:
     depends_on:
       # - db
       - redis
-
-  proxy:
-    container_name: mastodon-nginx
-    restart: unless-stopped
-    build:
-      context: ./src/proxy
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - external_network
-    depends_on:
-      - web
-      - streaming
-      - sidekiq
-    volumes:
-      - ../persistent-data/mastodon/cache:/var/cache/nginx
-
-  caddy:
-    image: caddy:2.7.6-alpine
-    restart: unless-stopped
-    ports:
-      - target: "80"
-        host_ip: "0.0.0.0"
-        published: "80"
-        protocol: tcp
-        mode: host
-      - target: "443"
-        host_ip: "0.0.0.0"
-        published: "443"
-        protocol: tcp
-        mode: host
-      - target: "443"
-        host_ip: "0.0.0.0"
-        published: "443"
-        protocol: udp # gotta go quic
-        mode: host
-    networks:
-      - external_network
-    volumes:
-      - ../persistent-data/caddy/Caddyfile:/etc/caddy/Caddyfile
-      - ../persistent-data/caddy/data:/data
-      - ../persistent-data/caddy/config:/config
 
   # db:
   #   container_name: mastodon-db

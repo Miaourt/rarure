@@ -1,0 +1,40 @@
+raru.re {
+	@streaming {
+		path /api/v1/streaming/*
+	}
+	@cache_control {
+		path_regexp ^/(assets|avatars|emoji|headers|packs|shortcuts|sounds|system)
+	}
+
+	encode zstd gzip
+
+	handle_errors {
+		root /html
+		rewrite * /error.html
+		file_server
+	}
+
+	header >Permissions-Policy "interest-cohort=()"
+	header >Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+	header >X-Content-Type-Options "nosniff"
+	header >X-Frame-Options "DENY"
+
+	header /sw.js >Cache-Control "public, max-age=604800"
+	header @cache_control >Cache-Control "public, max-age=2419200, must-revalidate"
+
+	reverse_proxy @streaming streaming:4000 {
+		transport http {
+			keepalive 5s
+			keepalive_idle_conns 10
+			compression off
+		}
+	}
+
+	reverse_proxy web:3000 {
+		transport http {
+			keepalive 5s
+			keepalive_idle_conns 10
+			compression off
+		}
+	}
+}
