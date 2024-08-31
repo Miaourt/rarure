@@ -39,11 +39,12 @@ services:
     container_name: mastodon-web
     restart: unless-stopped
     build:
-      context: ./src/mastodon
+      context: ./src/mastodon-r3
+      dockerfile: ./Dockerfile
     security_opt:
       - no-new-privileges:true
     env_file: env.production
-    command: bash -c "rm -f /mastodon/tmp/pids/server.pid; bundle exec rails s -p 3000"
+    command: bundle exec puma -C config/puma.rb
     networks:
       - external_network
       - internal_network
@@ -55,29 +56,12 @@ services:
     volumes:
       - ../persistent-data/mastodon/emojis:/emojis
 
-  streaming:
-    container_name: mastodon-streaming
-    restart: unless-stopped
-    build:
-      context: ./src/mastodon
-    security_opt:
-      - no-new-privileges:true
-    env_file: env.production
-    command: node ./streaming
-    networks:
-      - external_network
-      - internal_network
-    ports:
-      - '127.0.0.1:4000:4000'
-    depends_on:
-    #  - db
-      - redis
-
   sidekiq:
     container_name: mastodon-sidekiq
     restart: unless-stopped
     build:
-      context: ./src/mastodon
+      context: ./src/mastodon-r3
+      dockerfile: ./Dockerfile
     security_opt:
       - no-new-privileges:true
     env_file: env.production
@@ -87,6 +71,25 @@ services:
       - internal_network
     depends_on:
       # - db
+      - redis
+
+  streaming:
+    container_name: mastodon-streaming
+    restart: unless-stopped
+    build:
+      context: ./src/mastodon-r3
+      dockerfile: ./streaming/Dockerfile
+    security_opt:
+      - no-new-privileges:true
+    env_file: env.production
+    command: node ./streaming/index.js
+    networks:
+      - external_network
+      - internal_network
+    ports:
+      - '127.0.0.1:4000:4000'
+    depends_on:
+    #  - db
       - redis
 
   # db:

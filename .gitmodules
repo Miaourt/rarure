@@ -1,0 +1,3 @@
+[submodule "src/mastodon-r3"]
+	path = src/mastodon-r3
+	url = git@github.com:Miaourt/mastodon-r3.git
