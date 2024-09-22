@@ -4,6 +4,8 @@ services:
     build:
       context: ./src/caddy
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     ports:
       - target: "80"
         published: "80"
@@ -51,7 +53,7 @@ services:
     ports:
       - '127.0.0.1:3000:3000'
     depends_on:
-      # - db
+      - db
       - redis
     volumes:
       - ../persistent-data/mastodon/emojis:/emojis
@@ -65,12 +67,12 @@ services:
     security_opt:
       - no-new-privileges:true
     env_file: env.production
-    command: bundle exec sidekiq -c 10
+    command: bundle exec sidekiq -c 20
     networks:
       - external_network
       - internal_network
     depends_on:
-      # - db
+      - db
       - redis
 
   streaming:
@@ -89,26 +91,26 @@ services:
     ports:
       - '127.0.0.1:4000:4000'
     depends_on:
-    #  - db
+      - db
       - redis
 
-  # db:
-  #   container_name: mastodon-db
-  #   restart: unless-stopped
-  #   image: postgres:15-alpine
-  #   security_opt:
-  #     - no-new-privileges:true
-  #   environment:
-  #     - 'PGDATA=/var/lib/postgresql/data/pgdata'
-  #   env_file: env.production
-  #   shm_size: 256mb
-  #   networks:
-  #     - internal_network
-  #   healthcheck:
-  #     test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
-  #   volumes:
-  #     - ../persistent-data/mastodon/postgres:/var/lib/postgresql/data/pgdata
-  #     - ../persistent-data/mastodon/postgres-srv:/srv
+  db:
+    container_name: mastodon-db
+    restart: unless-stopped
+    image: postgres:16-alpine
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - 'PGDATA=/var/lib/postgresql/data/pgdata'
+    env_file: env.production
+    shm_size: 256mb
+    networks:
+      - internal_network
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+    volumes:
+      - ../persistent-data/mastodon/postgres:/var/lib/postgresql/data/pgdata
+      - ../persistent-data/mastodon/postgres-srv:/srv
 
 networks:
   external_network:
@@ -125,7 +127,7 @@ networks:
 # docker compose exec postgres pg_dump -Fc -U mastodon mastodon -f /srv/dump.sql
 #
 ## Restore Database
-# pg_restore -U mastodon -d mastodon -Fc /srv/dump.sql
+# pg_restore -v -U mastodon -d mastodon -Fc /srv/dump.sql
 #
 ## Migrate Database
 # docker compose run --rm web rails db:migrate
