@@ -1,3 +1,6 @@
 [submodule "src/mastodon-r3"]
 	path = src/mastodon-r3
-	url = git@github.com:Miaourt/mastodon-r3.git
+	url = https://github.com/Miaourt/mastodon-r3.git
+[submodule "src/picocache"]
+	path = src/picocache
+	url = https://github.com/Miaourt/picocache.git

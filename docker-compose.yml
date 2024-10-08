@@ -26,6 +26,20 @@ services:
       - ../persistent-data/caddy/data:/data
       - ../persistent-data/caddy/config:/config
 
+  cdn:
+    container_name: mastodon-cdn
+    build:
+      context: ./src/picocache
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    env_file: env.production
+    networks:
+      - external_network
+      - internal_network
+    volumes:
+      - ../persistent-data/mastodon/cdn:/var/cache/cdncache
+
   redis:
     container_name: mastodon-redis
     restart: unless-stopped
