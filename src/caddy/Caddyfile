@@ -1,3 +1,9 @@
+{
+	servers {
+		protocols h1 h2 
+	}
+}
+
 raru.re {
 	@streaming {
 		path /api/v1/streaming/*
@@ -22,7 +28,8 @@ raru.re {
 	header /sw.js >Cache-Control "public, max-age=604800"
 	header @cache_control >Cache-Control "public, max-age=2419200, must-revalidate"
 
-	reverse_proxy @streaming streaming:4000 {
+	reverse_proxy @streaming 127.0.0.1:4000 {
+		header_up X-Real-IP {remote_host}
 		transport http {
 			keepalive 5s
 			keepalive_idle_conns 10
@@ -30,7 +37,8 @@ raru.re {
 		}
 	}
 
-	reverse_proxy web:3000 {
+	reverse_proxy 127.0.0.1:3000 {
+		header_up X-Real-IP {remote_host}
 		transport http {
 			keepalive 5s
 			keepalive_idle_conns 10
@@ -45,6 +53,7 @@ cdn.raru.re {
 	header >X-Content-Type-Options "nosniff"
 	header >X-Frame-Options "DENY"
 	header >Cache-Control "public, max-age=2419200, must-revalidate"
+	header >Access-Control-Allow-Origin: https://raru.re
 
-	reverse_proxy cdn:8080
+	reverse_proxy 127.0.0.1:6000
 }

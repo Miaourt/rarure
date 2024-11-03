@@ -6,22 +6,7 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
-    ports:
-      - target: "80"
-        published: "80"
-        protocol: tcp
-        mode: host
-      - target: "443"
-        published: "443"
-        protocol: tcp
-        mode: host
-      - target: "443"
-        published: "443"
-        protocol: udp # gotta go quic
-        mode: host
-    networks:
-      - external_network
-      - internal_network
+    network_mode: "host"
     volumes:
       - ../persistent-data/caddy/data:/data
       - ../persistent-data/caddy/config:/config
@@ -34,9 +19,10 @@ services:
     security_opt:
       - no-new-privileges:true
     env_file: env.production
+    ports:
+      - '127.0.0.1:6000:8080'
     networks:
       - external_network
-      - internal_network
     volumes:
       - ../persistent-data/mastodon/cdn:/var/cache/cdncache
 
