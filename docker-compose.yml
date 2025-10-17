@@ -34,6 +34,8 @@ services:
       - no-new-privileges:true
     networks:
       - internal_network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
     volumes:
       - ../persistent-data/mastodon/redis:/data
 
@@ -50,6 +52,8 @@ services:
     networks:
       - external_network
       - internal_network
+    healthcheck:
+      test: ['CMD-SHELL',"curl -s --noproxy localhost localhost:3000/health | grep -q 'OK' || exit 1"]
     ports:
       - '127.0.0.1:3000:3000'
     depends_on:
@@ -71,6 +75,8 @@ services:
     networks:
       - external_network
       - internal_network
+    healthcheck:
+      test: ['CMD-SHELL', "ps aux | grep '[s]idekiq\ [78]' || false"]
     depends_on:
       - db
       - redis
@@ -88,6 +94,8 @@ services:
     networks:
       - external_network
       - internal_network
+    healthcheck:
+      test: ['CMD-SHELL', "curl -s --noproxy localhost localhost:4000/api/v1/streaming/health | grep -q 'OK' || exit 1"]
     ports:
       - '127.0.0.1:4000:4000'
     depends_on:
