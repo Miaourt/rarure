@@ -138,7 +138,8 @@ networks:
 # pg_restore -v -U mastodon -d mastodon -Fc /srv/dump.sql
 #
 ## Migrate Database
-# docker compose run --rm web rails db:migrate
+# docker compose run --rm -e SKIP_POST_DEPLOYMENT_MIGRATIONS=true web bundle exec rails db:migrate
+# docker compose run --rm web bundle exec rails db:migrate
 #
 ## Grab all users emails if u need to send an important message
 # docker compose run web rails r "puts *User.confirmed.pluck(:email)"
