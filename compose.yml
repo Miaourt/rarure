@@ -23,6 +23,12 @@ services:
       - '127.0.0.1:6000:8080'
     networks:
       - external_network
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -SO- http://localhost:8080/ 2>&1 | grep -q "HTTP/"']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     volumes:
       - ../persistent-data/mastodon/cdn:/var/cache/cdncache
 
@@ -36,6 +42,10 @@ services:
       - internal_network
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
     volumes:
       - ../persistent-data/mastodon/redis:/data
 
@@ -53,12 +63,18 @@ services:
       - external_network
       - internal_network
     healthcheck:
-      test: ['CMD-SHELL',"curl -s --noproxy localhost localhost:3000/health | grep -q 'OK' || exit 1"]
+      test: ['CMD-SHELL', "curl -sf --noproxy localhost localhost:3000/health | grep -q 'OK' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     ports:
       - '127.0.0.1:3000:3000'
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ../persistent-data/mastodon/emojis:/emojis
 
@@ -76,10 +92,16 @@ services:
       - external_network
       - internal_network
     healthcheck:
-      test: ['CMD-SHELL', "ps aux | grep '[s]idekiq\ [78]' || false"]
+      test: ['CMD-SHELL', "ps aux | grep '[s]idekiq' | grep -v grep || false"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   streaming:
     container_name: mastodon-streaming
@@ -95,12 +117,18 @@ services:
       - external_network
       - internal_network
     healthcheck:
-      test: ['CMD-SHELL', "curl -s --noproxy localhost localhost:4000/api/v1/streaming/health | grep -q 'OK' || exit 1"]
+      test: ['CMD-SHELL', "curl -sf --noproxy localhost localhost:4000/api/v1/streaming/health | grep -q 'OK' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     ports:
       - '127.0.0.1:4000:4000'
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   db:
     container_name: mastodon-db
@@ -115,7 +143,11 @@ services:
     networks:
       - internal_network
     healthcheck:
-      test: ['CMD', 'pg_isready', '-U', 'postgres']
+      test: ['CMD', 'pg_isready', '-U', 'mastodon', '-d', 'mastodon']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     volumes:
       - ../persistent-data/mastodon/postgres:/var/lib/postgresql/data/pgdata
       - ../persistent-data/mastodon/postgres-srv:/srv
