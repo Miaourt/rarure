@@ -164,10 +164,10 @@ networks:
 # docker compose run --rm web tootctl accounts modify Miaourt --role admin
 #
 ## Backup Database
-# docker compose exec postgres pg_dump -Fc -U mastodon mastodon -f /srv/dump.sql
+# docker compose exec db pg_dump -Fc -U mastodon mastodon -f /srv/dump.sql
 #
 ## Restore Database
-# pg_restore -v -U mastodon -d mastodon -Fc /srv/dump.sql
+# docker compose exec db pg_restore -v -U mastodon -d mastodon -Fc /srv/dump.sql
 #
 ## Migrate Database
 # docker compose run --rm -e SKIP_POST_DEPLOYMENT_MIGRATIONS=true web bundle exec rails db:migrate
@@ -187,3 +187,6 @@ networks:
 #
 ## Remove orphaned media
 # docker compose exec -e RAILS_ENV=production web tootctl media remove-orphans --verbose
+#
+## Prune remote statuses older than 6 months (keeps local + bookmarked)
+# docker compose exec -e RAILS_ENV=production web tootctl statuses remove --days 180 --verbose
